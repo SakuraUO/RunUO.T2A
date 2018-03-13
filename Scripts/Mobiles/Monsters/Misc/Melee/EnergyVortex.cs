@@ -1,83 +1,62 @@
 using System;
+using Server;
+using Server.Items;
+using Server.Misc;
 
 namespace Server.Mobiles
 {
-    [CorpseName( "an energy vortex corpse" )]
+	[CorpseName( "an energy vortex corpse" )]
 	public class EnergyVortex : BaseCreature
 	{
-		public override bool DeleteCorpseOnDeath { get { return Summoned; } }
-		public override bool AlwaysMurderer{ get{ return true; } } // Or Llama vortices will appear gray.
-
-		public override double DispelDifficulty { get { return 80.0; } }
-		public override double DispelFocus { get { return 20.0; } }
-
-		public override double GetFightModeRanking( Mobile m, FightMode acqType, bool bPlayerOnly )
-		{
-			return ( m.Int + m.Skills[SkillName.Magery].Value ) / Math.Max( GetDistanceToSqrt( m ), 1.0 );
-		}
-
 		[Constructable]
-		public EnergyVortex()
-			: base( AIType.AI_Melee, FightMode.Closest, 10, 1, 0.2, 0.4 )
+		public EnergyVortex() : base( AIType.AI_Melee, FightMode.Smartest,  11, 1, 0.25, 0.3 )
 		{
+			if ( Utility.Random( 100 ) == 17 )
+				Body = 0xDC;
+			else
+				Body = 0xD;
+
+			Hue = 20;
 			Name = "an energy vortex";
-
-			Body = 164;
-
-			SetStr( 200 );
+			SetStr( 100 );
+			SetHits( 900 );
 			SetDex( 200 );
+			SetStam( 0 );
 			SetInt( 100 );
-
-			SetHits( 70 );
-			SetStam( 250 );
 			SetMana( 0 );
 
-			SetDamage( 14, 17 );
-
-			SetSkill( SkillName.MagicResist, 99.9 );
+			SetSkill( SkillName.MagicResist, 100.0 );
+			SetSkill( SkillName.Parry, 100.0 );
+			SetSkill( SkillName.Wrestling, 100.0 );
 			SetSkill( SkillName.Tactics, 100.0 );
-			SetSkill( SkillName.Wrestling, 120.0 );
 
-			Fame = 0;
-			Karma = 0;
-
-			VirtualArmor = 40;
-			ControlSlots = 1;
+			SetDamage( 15, 25 );
 		}
 
-		public override bool BleedImmune{ get{ return true; } }
-		public override Poison PoisonImmune { get { return Poison.Lethal; } }
+		public override TimeSpan ReaquireDelay{ get{ return TimeSpan.FromSeconds( 0.1 ); } }
 
-		public override int GetAngerSound()
-		{
-			return 0x15;
-		}
+		public override Poison PoisonImmune{ get{ return Poison.Lethal; } }
+		public override Poison HitPoison{ get{ return Utility.RandomDouble() < 0.15 ? Poison.Deadly : Poison.Greater; } }
+		public override bool IsHouseSummonable{ get{ return true; } }
 
-		public override int GetAttackSound()
-		{
-			return 0x28;
-		}
+		public override bool Commandable{ get{ return false; } }
 
-		public EnergyVortex( Serial serial )
-			: base( serial )
+		public override bool AlwaysMurderer { get { return true; } }
+
+		public EnergyVortex( Serial serial ) : base( serial )
 		{
 		}
 
 		public override void Serialize( GenericWriter writer )
 		{
 			base.Serialize( writer );
-
-			writer.Write( (int) 0 ); // version
+			writer.Write( (int)0 ); // version
 		}
 
 		public override void Deserialize( GenericReader reader )
 		{
 			base.Deserialize( reader );
-
 			int version = reader.ReadInt();
-
-			if ( BaseSoundID == 263 )
-				BaseSoundID = 0;
 		}
 	}
 }
