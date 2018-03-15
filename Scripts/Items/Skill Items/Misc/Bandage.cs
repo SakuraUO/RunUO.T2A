@@ -9,7 +9,7 @@ using Server.Gumps;
 
 namespace Server.Items
 {
-	public class Bandage : BaseItem, IDyable
+	public class Bandage : Item, IDyable
 	{
 		[Constructable]
 		public Bandage() : this( 1 )
